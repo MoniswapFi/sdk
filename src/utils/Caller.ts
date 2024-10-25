@@ -56,6 +56,8 @@ export class Caller {
         args?: any[],
         value: bigint = BigInt(0),
         privateKey?: `0x${string}`,
+        gas?: bigint,
+        gasPrice?: bigint,
     ) {
         const provider = (window as any).ethereum;
         const client = !privateKey
@@ -74,6 +76,8 @@ export class Caller {
                 to,
                 data: functionData,
                 value,
+                gas,
+                gasPrice,
             });
             return hash;
         } catch (error: any) {

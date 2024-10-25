@@ -50,7 +50,14 @@ export class Token {
         return this._address;
     }
 
-    async approve(spender: `0x${string}`, amount: bigint, value: bigint = BigInt(0), privateKey?: `0x${string}`) {
+    async approve(
+        spender: `0x${string}`,
+        amount: bigint,
+        value: bigint = BigInt(0),
+        privateKey?: `0x${string}`,
+        gas?: bigint,
+        gasPrice?: bigint,
+    ) {
         try {
             const caller = Caller.createCaller(this.chainId);
             const approvalHash = await caller.submitTransaction(
@@ -60,6 +67,8 @@ export class Token {
                 [spender, amount],
                 value,
                 privateKey,
+                gas,
+                gasPrice,
             );
             return approvalHash;
         } catch (error: any) {
@@ -77,7 +86,14 @@ export class Token {
         }
     }
 
-    async transfer(recipient: `0x${string}`, amount: bigint, value: bigint = BigInt(0), privateKey?: `0x${string}`) {
+    async transfer(
+        recipient: `0x${string}`,
+        amount: bigint,
+        value: bigint = BigInt(0),
+        privateKey?: `0x${string}`,
+        gas?: bigint,
+        gasPrice?: bigint,
+    ) {
         try {
             const caller = Caller.createCaller(this.chainId);
             const transferHash = await caller.submitTransaction(
@@ -87,6 +103,8 @@ export class Token {
                 [recipient, amount],
                 value,
                 privateKey,
+                gas,
+                gasPrice,
             );
             return transferHash;
         } catch (error: any) {
@@ -100,6 +118,8 @@ export class Token {
         amount: bigint,
         value: bigint = BigInt(0),
         privateKey?: `0x${string}`,
+        gas?: bigint,
+        gasPrice?: bigint,
     ) {
         try {
             const caller = Caller.createCaller(this.chainId);
@@ -110,6 +130,8 @@ export class Token {
                 [from, recipient, amount],
                 value,
                 privateKey,
+                gas,
+                gasPrice,
             );
 
             return transferHash;
