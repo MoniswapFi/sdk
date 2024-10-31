@@ -1,4 +1,4 @@
-import { ChainId, PROTOCOL_ROUTERS } from "../constants";
+import { ChainId, ETH_ADDRESS, PROTOCOL_ROUTERS, SwapRoutes } from "../constants";
 import type { Token } from "../entities/Token";
 import { protocolRouterAbi } from "../entities/abis";
 import { Loader } from "../loader";
@@ -189,6 +189,176 @@ export class ProtocolRouter {
                 this.address,
                 "addLiquidityETH",
                 [token.address, stable, amountTokenDesired, BigInt(0), BigInt(0), to, deadline],
+                value,
+                privateKey,
+                gas,
+                gasPrice,
+            );
+            return txHash;
+        } catch (error: any) {
+            return Promise.reject(error);
+        }
+    }
+
+    async removeLiquidity(
+        tokenA: Token | `0x${string}`,
+        tokenB: Token | `0x${string}`,
+        stable: boolean,
+        liquidity: bigint,
+        to: `0x${string}`,
+        deadline = BigInt(108000),
+        value?: bigint,
+        privateKey?: `0x${string}`,
+        gas?: bigint,
+        gasPrice?: bigint,
+    ) {
+        try {
+            const caller = Caller.createCaller(this.chainId);
+
+            if (typeof tokenA === "string") {
+                tokenA = await Loader.loadToken(tokenA);
+            }
+
+            if (typeof tokenB === "string") {
+                tokenB = await Loader.loadToken(tokenB);
+            }
+
+            const txHash = await caller.submitTransaction(
+                protocolRouterAbi,
+                this.address,
+                "removeLiquidity",
+                [tokenA.address, tokenB.address, stable, liquidity, BigInt(0), BigInt(0), to, deadline],
+                value,
+                privateKey,
+                gas,
+                gasPrice,
+            );
+            return txHash;
+        } catch (error: any) {
+            return Promise.reject(error);
+        }
+    }
+
+    async removeLiquidityETH(
+        token: Token | `0x${string}`,
+        stable: boolean,
+        liquidity: bigint,
+        to: `0x${string}`,
+        deadline = BigInt(108000),
+        value?: bigint,
+        privateKey?: `0x${string}`,
+        gas?: bigint,
+        gasPrice?: bigint,
+    ) {
+        try {
+            const caller = Caller.createCaller(this.chainId);
+
+            if (typeof token === "string") {
+                token = await Loader.loadToken(token);
+            }
+
+            const txHash = await caller.submitTransaction(
+                protocolRouterAbi,
+                this.address,
+                "removeLiquidityETH",
+                [token.address, stable, liquidity, BigInt(0), BigInt(0), to, deadline],
+                value,
+                privateKey,
+                gas,
+                gasPrice,
+            );
+            return txHash;
+        } catch (error: any) {
+            return Promise.reject(error);
+        }
+    }
+
+    async removeLiquidityETHSupportingFeeOnTransferTokens(
+        token: Token | `0x${string}`,
+        stable: boolean,
+        liquidity: bigint,
+        to: `0x${string}`,
+        deadline = BigInt(108000),
+        value?: bigint,
+        privateKey?: `0x${string}`,
+        gas?: bigint,
+        gasPrice?: bigint,
+    ) {
+        try {
+            const caller = Caller.createCaller(this.chainId);
+
+            if (typeof token === "string") {
+                token = await Loader.loadToken(token);
+            }
+
+            const txHash = await caller.submitTransaction(
+                protocolRouterAbi,
+                this.address,
+                "removeLiquidityETHSupportingFeeOnTransferTokens",
+                [token.address, stable, liquidity, BigInt(0), BigInt(0), to, deadline],
+                value,
+                privateKey,
+                gas,
+                gasPrice,
+            );
+            return txHash;
+        } catch (error: any) {
+            return Promise.reject(error);
+        }
+    }
+
+    async swap(
+        swapRoutes: SwapRoutes,
+        amountIn: bigint,
+        to: `0x${string}`,
+        deadline = BigInt(108000),
+        feeOnTransferTokens: boolean = false,
+        value?: bigint,
+        privateKey?: `0x${string}`,
+        gas?: bigint,
+        gasPrice?: bigint,
+    ) {
+        try {
+            let method: string;
+            let args: any[];
+
+            const routes = swapRoutes.map((swapRoute) => ({
+                ...swapRoute,
+                from: typeof swapRoute.from !== "string" ? swapRoute.from.address : swapRoute.from,
+                to: typeof swapRoute.to !== "string" ? swapRoute.to.address : swapRoute.to,
+            }));
+
+            if (routes[0].from === ETH_ADDRESS) {
+                const weth = await this.weth();
+                routes[0].from = weth.address;
+                method = feeOnTransferTokens
+                    ? "swapExactETHForTokensSupportingFeeOnTransferTokens"
+                    : "swapExactETHForTokens";
+                args = [BigInt(0), routes, to, deadline];
+
+                if (value !== amountIn) {
+                    value = amountIn;
+                }
+            } else if (routes[routes.length - 1].to === ETH_ADDRESS) {
+                const weth = await this.weth();
+                routes[routes.length - 1].to = weth.address;
+                method = feeOnTransferTokens
+                    ? "swapExactTokensForETHSupportingFeeOnTransferTokens"
+                    : "swapExactTokensForETH";
+                args = [amountIn, BigInt(0), routes, to, deadline];
+            } else {
+                method = feeOnTransferTokens
+                    ? "swapExactTokensForTokensSupportingFeeOnTransferTokens"
+                    : "swapExactTokensForTokens";
+                args = [amountIn, BigInt(0), routes, to, deadline];
+            }
+
+            const caller = Caller.createCaller(this.chainId);
+            const txHash = await caller.submitTransaction(
+                protocolRouterAbi,
+                this.address,
+                method,
+                args,
                 value,
                 privateKey,
                 gas,

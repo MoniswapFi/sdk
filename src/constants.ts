@@ -1,3 +1,18 @@
+import type { Token } from "./entities/Token";
+
+export const ETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+export const ETH_NAME = "Ether";
+export const ETH_DECIMALS = 18;
+export const ETH_SYMBOL = "ETH";
+export const ETH_TOTAL_SUPPLY = BigInt(Number.POSITIVE_INFINITY);
+export type SwapRoute = {
+    from: Token | string;
+    to: Token | string;
+    stable: boolean;
+    factory: string;
+};
+export type SwapRoutes = Array<SwapRoute>;
+
 export enum ChainId {
     BERACHAIN_BARTIO = 80084,
 }
